@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TABUSI — Silahkan Paduka</title>
+    <meta
+      name="description"
+      content="TABUSI, pameran kopi enak dengan harga bersahabat. Order lewat WhatsApp. Buat story dari kata-katamu."
+    />
+    <meta name="theme-color" content="#F6EFE4" />
+    <link rel="canonical" href="https://tabusi.asrul.dev/" />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content="TABUSI — Silahkan Paduka" />
+    <meta
+      property="og:description"
+      content="Kopi enak, harga bersahabat. Pameran menu TABUSI plus story generator."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tabusi.asrul.dev/" />
+    <meta
+      property="og:image"
+      content="https://tabusi.asrul.dev/assets/logo.svg"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fredoka:wght@500;600;700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#konten">Loncat ke isi</a>
+
+    <div class="page-wash" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#beranda">
+        <img src="./assets/logo.svg" alt="" width="36" height="40" />
+        <span>TABUSI</span>
+      </a>
+      <nav class="nav" aria-label="Utama">
+        <a href="#story">Story</a>
+        <a class="nav-wa" href="#pesan">WhatsApp</a>
+      </nav>
+    </header>
+
+    <main id="konten">
+      <section class="hero" id="beranda">
+        <p class="eyebrow">TABUSI</p>
+        <h1 class="hero-title">
+          <span class="word-brown">Silahkan</span>
+          <span class="word-pink">Paduka <i class="heart">♡</i></span>
+        </h1>
+        <p class="lead">
+          Silakan mampir, Paduka. Ini pameran kopi, tempatnya melihat-lihat dan
+          membuat story. Kalau sudah mau pesan, kabari kami lewat WhatsApp.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-pink" href="#story">Buat story</a>
+          <a class="btn btn-brown" href="#pesan">Chat WhatsApp</a>
+        </div>
+      </section>
+
+      <section class="story" id="story" aria-labelledby="story-title">
+        <div class="story-intro">
+          <h2 id="story-title">Story generator</h2>
+          <p>
+            Tulis kata-kata Paduka, pilih suasana, lalu unduh gambar 9:16. Yang
+            terlihat di pratinjau itulah yang tersimpan.
+          </p>
+        </div>
+
+        <div class="story-studio">
+          <form class="story-form" id="story-form">
+            <label for="story-text">Kata-kata</label>
+            <textarea
+              id="story-text"
+              name="text"
+              maxlength="140"
+              rows="4"
+              placeholder="Contoh: Siang ini pelan saja. Kopi dulu, urusan belakangan."
+            >
+Kopi enak, hati lebih ringan.</textarea
+            >
+            <p class="char-count"><span id="char-now">31</span>/140</p>
+
+            <label for="story-from">Dari (opsional)</label>
+            <input
+              id="story-from"
+              name="from"
+              type="text"
+              maxlength="28"
+              placeholder="Paduka"
+            />
+
+            <fieldset>
+              <legend>Suasana</legend>
+              <div class="theme-grid">
+                <label class="theme-card">
+                  <input type="radio" name="theme" value="classic" checked />
+                  <span class="swatch swatch-classic"></span>
+                  <span>Klasik</span>
+                </label>
+                <label class="theme-card">
+                  <input type="radio" name="theme" value="aren" />
+                  <span class="swatch swatch-aren"></span>
+                  <span>Gula Aren</span>
+                </label>
+                <label class="theme-card">
+                  <input type="radio" name="theme" value="creamy" />
+                  <span class="swatch swatch-creamy"></span>
+                  <span>Creamy</span>
+                </label>
+                <label class="theme-card">
+                  <input type="radio" name="theme" value="amerikano" />
+                  <span class="swatch swatch-amerikano"></span>
+                  <span>Amerikano</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Tampilkan menu</legend>
+              <div class="drink-grid">
+                <label class="drink-card">
+                  <input type="radio" name="drink" value="gula-aren" checked />
+                  <span class="drink-dot caramel"></span>
+                  <span>Gula Aren</span>
+                </label>
+                <label class="drink-card">
+                  <input type="radio" name="drink" value="salted-creamy" />
+                  <span class="drink-dot cream"></span>
+                  <span>Salted Creamy</span>
+                </label>
+                <label class="drink-card">
+                  <input type="radio" name="drink" value="amerikano" />
+                  <span class="drink-dot dark"></span>
+                  <span>Amerikano</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="story-actions">
+              <button type="button" class="btn btn-brown" id="download-story">
+                Unduh gambar
+              </button>
+              <button
+                type="button"
+                class="btn btn-pink"
+                id="share-story"
+                hidden
+              >
+                Bagikan
+              </button>
+              <button type="button" class="btn btn-ghost" id="copy-caption">
+                Salin caption
+              </button>
+            </div>
+            <p class="status" id="story-status" role="status">
+              Gambar tersimpan sebagai PNG 1080×1920.
+            </p>
+          </form>
+
+          <div class="phone-frame">
+            <p class="preview-label">Pratinjau Story</p>
+            <div class="phone-bezel">
+              <div class="phone-notch" aria-hidden="true"></div>
+              <div class="phone-stage">
+                <canvas
+                  id="story-canvas"
+                  width="1080"
+                  height="1920"
+                  role="img"
+                  aria-label="Pratinjau story TABUSI"
+                ></canvas>
+              </div>
+            </div>
+            <p class="preview-hint">9:16 · siap diunggah nih, Paduka</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="pesan" id="pesan" aria-labelledby="pesan-title">
+        <p class="section-kicker">Kalau mau pesan</p>
+        <h2 id="pesan-title">WhatsApp kami, jangan dipaksa di web</h2>
+        <p>
+          Situs ini sengaja hanya pameran biar kunjungannya tetap nyaman: tidak
+          ada keranjang, tidak ada checkout, tidak ada desakan. Tinggal sapa,
+          tanya stok, lalu ambil pelan-pelan.
+        </p>
+        <a class="btn btn-wa" id="wa-button" href="#" rel="noopener noreferrer">
+          Chat WhatsApp
+        </a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Kopi enak, harga bersahabat ♡</p>
+      <p><a href="https://tabusi.asrul.dev">tabusi.asrul.dev</a></p>
+    </footer>
+
+    <a
+      class="wa-fab"
+      id="wa-fab"
+      href="#"
+      rel="noopener noreferrer"
+      aria-label="Order lewat WhatsApp"
+    >
+      WA
+    </a>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/app.js"></script>
+    <script src="./js/story.js"></script>
+  </body>
+</html>
