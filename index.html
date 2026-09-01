@@ -6,7 +6,7 @@
     <title>TABUSI — Silahkan Paduka</title>
     <meta
       name="description"
-      content="TABUSI, pameran kopi enak dengan harga bersahabat. Order lewat WhatsApp. Buat story dari kata-katamu."
+      content="TABUSI, pameran kopi, jus, jamu, dan teh dengan harga bersahabat. Order lewat WhatsApp. Buat story dari kata-katamu."
     />
     <meta name="theme-color" content="#F6EFE4" />
     <link rel="canonical" href="https://tabusi.asrul.dev/" />
@@ -14,7 +14,7 @@
     <meta property="og:title" content="TABUSI — Silahkan Paduka" />
     <meta
       property="og:description"
-      content="Kopi enak, harga bersahabat. Pameran menu TABUSI plus story generator."
+      content="Kopi, jus, jamu, dan teh dengan harga bersahabat. Pameran menu TABUSI plus story generator."
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://tabusi.asrul.dev/" />
@@ -37,57 +37,64 @@
     <div class="page-wash" aria-hidden="true"></div>
 
     <header class="topbar">
-      <a class="brand" href="#beranda">
+      <a class="brand" href="#story">
         <img src="./assets/logo.svg" alt="" width="36" height="40" />
         <span>TABUSI</span>
       </a>
       <nav class="nav" aria-label="Utama">
         <a href="#story">Story</a>
-        <a class="nav-wa" href="#pesan">WhatsApp</a>
+        <a href="#menu">Menu</a>
+        <a class="nav-wa" href="#pesan">WA</a>
       </nav>
     </header>
 
     <main id="konten">
-      <section class="hero" id="beranda">
-        <p class="eyebrow">TABUSI</p>
-        <h1 class="hero-title">
-          <span class="word-brown">Silahkan</span>
-          <span class="word-pink">Paduka <i class="heart">♡</i></span>
-        </h1>
-        <p class="lead">
-          Silakan mampir, Paduka. Ini pameran kopi, tempatnya melihat-lihat dan
-          membuat story. Kalau sudah mau pesan, kabari kami lewat WhatsApp.
-        </p>
-        <div class="hero-actions">
-          <a class="btn btn-pink" href="#story">Buat story</a>
-          <a class="btn btn-brown" href="#pesan">Chat WhatsApp</a>
-        </div>
-      </section>
-
       <section class="story" id="story" aria-labelledby="story-title">
         <div class="story-intro">
-          <h2 id="story-title">Story generator</h2>
-          <p>
-            Tulis kata-kata Paduka, pilih suasana, lalu unduh gambar 9:16. Yang
-            terlihat di pratinjau itulah yang tersimpan.
-          </p>
+          <p class="eyebrow">TABUSI</p>
+          <h1 class="hero-title">
+            <span class="word-brown">Silahkan</span>
+            <span class="word-pink">Paduka <i class="heart">♡</i></span>
+          </h1>
+          <h2 id="story-title" class="visually-hidden">Story generator</h2>
+          <p>Tulis, pilih rasa, unduh. Pratinjau di bawah langsung ikut berubah.</p>
         </div>
 
         <div class="story-studio">
+          <div class="phone-frame" id="phone-frame">
+            <p class="preview-label">Lihat hasilnya</p>
+            <div class="phone-bezel">
+              <div class="phone-notch" aria-hidden="true"></div>
+              <div class="phone-stage">
+                <canvas
+                  id="story-canvas"
+                  width="1080"
+                  height="1920"
+                  role="img"
+                  aria-label="Pratinjau story TABUSI"
+                ></canvas>
+              </div>
+            </div>
+            <p class="preview-hint">Siap diunggah ke Instagram Story</p>
+          </div>
+
           <form class="story-form" id="story-form">
-            <label for="story-text">Kata-kata</label>
+            <div class="label-row">
+              <label for="story-text">Kata-katamu</label>
+              <button type="button" class="text-btn" id="shuffle-text">
+                Ganti kata
+              </button>
+            </div>
             <textarea
               id="story-text"
               name="text"
               maxlength="140"
-              rows="4"
-              placeholder="Contoh: Siang ini pelan saja. Kopi dulu, urusan belakangan."
-            >
-Kopi enak, hati lebih ringan.</textarea
-            >
-            <p class="char-count"><span id="char-now">31</span>/140</p>
+              rows="3"
+              placeholder="Tulis di sini, atau tekan Ganti kata."
+            ></textarea>
+            <p class="char-count"><span id="char-now">0</span>/140</p>
 
-            <label for="story-from">Dari (opsional)</label>
+            <label for="story-from">Dari siapa? opsional</label>
             <input
               id="story-from"
               name="from"
@@ -97,55 +104,92 @@ Kopi enak, hati lebih ringan.</textarea
             />
 
             <fieldset>
-              <legend>Suasana</legend>
+              <legend>Pilih rasa</legend>
               <div class="theme-grid">
                 <label class="theme-card">
-                  <input type="radio" name="theme" value="classic" checked />
-                  <span class="swatch swatch-classic"></span>
-                  <span>Klasik</span>
-                </label>
-                <label class="theme-card">
-                  <input type="radio" name="theme" value="aren" />
+                  <input type="radio" name="menu" value="gula-aren" checked />
                   <span class="swatch swatch-aren"></span>
-                  <span>Gula Aren</span>
+                  <span class="theme-copy">
+                    <span>Gula Aren</span>
+                    <small>13K</small>
+                  </span>
                 </label>
                 <label class="theme-card">
-                  <input type="radio" name="theme" value="creamy" />
+                  <input type="radio" name="menu" value="salted-creamy" />
                   <span class="swatch swatch-creamy"></span>
-                  <span>Creamy</span>
+                  <span class="theme-copy">
+                    <span>Salted Creamy</span>
+                    <small>13K</small>
+                  </span>
                 </label>
                 <label class="theme-card">
-                  <input type="radio" name="theme" value="amerikano" />
+                  <input type="radio" name="menu" value="amerikano" />
                   <span class="swatch swatch-amerikano"></span>
-                  <span>Amerikano</span>
+                  <span class="theme-copy">
+                    <span>Amerikano</span>
+                    <small>10K</small>
+                  </span>
+                </label>
+                <label class="theme-card">
+                  <input type="radio" name="menu" value="alpukat" />
+                  <span class="swatch swatch-alpukat"></span>
+                  <span class="theme-copy">
+                    <span>Alpukat</span>
+                    <small>12K</small>
+                  </span>
+                </label>
+                <label class="theme-card">
+                  <input type="radio" name="menu" value="mangga" />
+                  <span class="swatch swatch-mangga"></span>
+                  <span class="theme-copy">
+                    <span>Mangga</span>
+                    <small>12K</small>
+                  </span>
+                </label>
+                <label class="theme-card">
+                  <input type="radio" name="menu" value="pisang" />
+                  <span class="swatch swatch-pisang"></span>
+                  <span class="theme-copy">
+                    <span>Pisang</span>
+                    <small>12K</small>
+                  </span>
+                </label>
+                <label class="theme-card">
+                  <input type="radio" name="menu" value="naga" />
+                  <span class="swatch swatch-naga"></span>
+                  <span class="theme-copy">
+                    <span>Buah Naga</span>
+                    <small>12K</small>
+                  </span>
+                </label>
+                <label class="theme-card">
+                  <input type="radio" name="menu" value="jamu-rancin" />
+                  <span class="swatch swatch-jamu"></span>
+                  <span class="theme-copy">
+                    <span>Jamu Rancin</span>
+                    <small>10K</small>
+                  </span>
+                </label>
+                <label class="theme-card">
+                  <input type="radio" name="menu" value="teahzy" />
+                  <span class="swatch swatch-teahzy"></span>
+                  <span class="theme-copy">
+                    <span>Teahzy</span>
+                    <small>12K</small>
+                  </span>
                 </label>
               </div>
             </fieldset>
 
-            <fieldset>
-              <legend>Tampilkan menu</legend>
-              <div class="drink-grid">
-                <label class="drink-card">
-                  <input type="radio" name="drink" value="gula-aren" checked />
-                  <span class="drink-dot caramel"></span>
-                  <span>Gula Aren</span>
-                </label>
-                <label class="drink-card">
-                  <input type="radio" name="drink" value="salted-creamy" />
-                  <span class="drink-dot cream"></span>
-                  <span>Salted Creamy</span>
-                </label>
-                <label class="drink-card">
-                  <input type="radio" name="drink" value="amerikano" />
-                  <span class="drink-dot dark"></span>
-                  <span>Amerikano</span>
-                </label>
-              </div>
-            </fieldset>
+            <label class="emoji-toggle">
+              <input type="checkbox" name="emoji" id="story-emoji" />
+              <span>Hias dengan emoji</span>
+              <span class="emoji-preview" id="emoji-preview" aria-hidden="true"></span>
+            </label>
 
             <div class="story-actions">
               <button type="button" class="btn btn-brown" id="download-story">
-                Unduh gambar
+                Unduh story
               </button>
               <button
                 type="button"
@@ -159,46 +203,129 @@ Kopi enak, hati lebih ringan.</textarea
                 Salin caption
               </button>
             </div>
-            <p class="status" id="story-status" role="status">
-              Gambar tersimpan sebagai PNG 1080×1920.
-            </p>
+            <p class="status" id="story-status" role="status"></p>
           </form>
+        </div>
+      </section>
 
-          <div class="phone-frame">
-            <p class="preview-label">Pratinjau Story</p>
-            <div class="phone-bezel">
-              <div class="phone-notch" aria-hidden="true"></div>
-              <div class="phone-stage">
-                <canvas
-                  id="story-canvas"
-                  width="1080"
-                  height="1920"
-                  role="img"
-                  aria-label="Pratinjau story TABUSI"
-                ></canvas>
-              </div>
-            </div>
-            <p class="preview-hint">9:16 · siap diunggah nih, Paduka</p>
+      <section class="menu" id="menu" aria-labelledby="menu-title">
+        <p class="section-kicker">Yang tersedia</p>
+        <h2 id="menu-title">Kopi, jus, jamu, dan teh</h2>
+        <p class="menu-lead">
+          Ketuk rasa yang disuka, story-nya langsung ikut. Pesan tetap lewat
+          WhatsApp.
+        </p>
+
+        <div class="menu-groups">
+          <div class="menu-group">
+            <h3>Kopi</h3>
+            <ul class="menu-cards">
+              <li class="menu-card coffee-aren" data-menu="gula-aren">
+                <span class="menu-orb" aria-hidden="true"></span>
+                <div>
+                  <strong>Kopi Gula Aren</strong>
+                  <p>Manis alami, aroma bikin happy.</p>
+                </div>
+                <em>13K</em>
+              </li>
+              <li class="menu-card coffee-cream" data-menu="salted-creamy">
+                <span class="menu-orb" aria-hidden="true"></span>
+                <div>
+                  <strong>Kopi Salted Creamy</strong>
+                  <p>Creamy, lembut, pas di lidah.</p>
+                </div>
+                <em>13K</em>
+              </li>
+              <li class="menu-card coffee-dark" data-menu="amerikano">
+                <span class="menu-orb" aria-hidden="true"></span>
+                <div>
+                  <strong>Amerikano</strong>
+                  <p>Strong &amp; simple, always on point.</p>
+                </div>
+                <em>10K</em>
+              </li>
+            </ul>
+          </div>
+
+          <div class="menu-group">
+            <h3>Jus buah</h3>
+            <ul class="menu-cards">
+              <li class="menu-card juice-alpukat" data-menu="alpukat">
+                <span class="menu-orb" aria-hidden="true"></span>
+                <div>
+                  <strong>Jus Alpukat</strong>
+                  <p>Lembut, kental, bikin kenyang tenang.</p>
+                </div>
+                <em>12K</em>
+              </li>
+              <li class="menu-card juice-mangga" data-menu="mangga">
+                <span class="menu-orb" aria-hidden="true"></span>
+                <div>
+                  <strong>Jus Mangga</strong>
+                  <p>Manis tropis, mood langsung cerah.</p>
+                </div>
+                <em>12K</em>
+              </li>
+              <li class="menu-card juice-pisang" data-menu="pisang">
+                <span class="menu-orb" aria-hidden="true"></span>
+                <div>
+                  <strong>Jus Pisang</strong>
+                  <p>Creamy manis, enak diminum pelan.</p>
+                </div>
+                <em>12K</em>
+              </li>
+              <li class="menu-card juice-naga" data-menu="naga">
+                <span class="menu-orb" aria-hidden="true"></span>
+                <div>
+                  <strong>Jus Buah Naga</strong>
+                  <p>Segar, warna cantik, mata ikut melek.</p>
+                </div>
+                <em>12K</em>
+              </li>
+            </ul>
+          </div>
+
+          <div class="menu-group">
+            <h3>Racikan</h3>
+            <ul class="menu-cards">
+              <li class="menu-card drink-jamu" data-menu="jamu-rancin">
+                <span class="menu-orb" aria-hidden="true"></span>
+                <div>
+                  <strong>Jamu Rancin</strong>
+                  <p>Untuk pelangsing. Jahe, sereh, nipis, dan madu.</p>
+                </div>
+                <em>10K</em>
+              </li>
+              <li class="menu-card drink-teahzy" data-menu="teahzy">
+                <span class="menu-orb" aria-hidden="true"></span>
+                <div>
+                  <strong>Teahzy</strong>
+                  <p>Teh creamy dan lembut, enak diminum pelan.</p>
+                </div>
+                <em>12K</em>
+              </li>
+            </ul>
           </div>
         </div>
       </section>
 
       <section class="pesan" id="pesan" aria-labelledby="pesan-title">
-        <p class="section-kicker">Kalau mau pesan</p>
-        <h2 id="pesan-title">WhatsApp kami, jangan dipaksa di web</h2>
-        <p>
-          Situs ini sengaja hanya pameran biar kunjungannya tetap nyaman: tidak
-          ada keranjang, tidak ada checkout, tidak ada desakan. Tinggal sapa,
-          tanya stok, lalu ambil pelan-pelan.
-        </p>
-        <a class="btn btn-wa" id="wa-button" href="#" rel="noopener noreferrer">
-          Chat WhatsApp
-        </a>
+        <div class="pesan-card">
+          <p class="section-kicker">Kalau mau pesan</p>
+          <h2 id="pesan-title">Mau pesan? sapa kami di WhatsApp</h2>
+          <p>
+            Tidak ada keranjang, tidak ada buru-buru. Tanyakan stok, lalu ambil
+            pelan-pelan.
+          </p>
+          <a class="btn btn-wa" id="wa-button" href="#" rel="noopener noreferrer">
+            Chat WhatsApp
+          </a>
+        </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <p>Kopi enak, harga bersahabat ♡</p>
+      <p>Enak diminum, harga bersahabat ♡</p>
       <p><a href="https://tabusi.asrul.dev">tabusi.asrul.dev</a></p>
     </footer>
 
@@ -207,9 +334,14 @@ Kopi enak, hati lebih ringan.</textarea
       id="wa-fab"
       href="#"
       rel="noopener noreferrer"
-      aria-label="Order lewat WhatsApp"
+      aria-label="Chat WhatsApp TABUSI"
     >
-      WA
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M16.1 4C9.8 4 4.7 9.1 4.7 15.4c0 2 .5 3.9 1.5 5.6L4 28l7.2-2.1c1.6.9 3.4 1.3 5.2 1.3 6.3 0 11.4-5.1 11.4-11.4C27.8 9.1 22.4 4 16.1 4zm6.6 16.1c-.3.8-1.6 1.5-2.6 1.7-.7.1-1.6.2-2.6-.2-1.2-.4-2.6-1-4.1-2.4-2.7-2.6-3.5-4.6-3.7-5.4-.2-.8.2-1.2.5-1.5.3-.3.6-.3.8-.3h.6c.2 0 .5 0 .7.6.3.8.9 2.8 1 3 .1.2.1.4 0 .6-.1.2-.2.4-.4.6l-.3.3c-.2.2-.3.4-.1.7.2.4.8 1.3 1.8 2.1 1.2 1 2.2 1.3 2.6 1.5.3.1.5.1.7-.1l.9-1.1c.2-.2.4-.2.7-.1.3.1 1.9.9 2.2 1.1.3.2.5.2.6.4.1.4 0 1.1-.3 1.9z"
+        />
+      </svg>
     </a>
 
     <script src="./js/config.js"></script>
