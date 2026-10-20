@@ -1,0 +1,17 @@
+{
+  "name": "Paduka by Tabusi",
+  "short_name": "Paduka",
+  "description": "Jus buah segar: mangga, sirsak, naga, pisang, melon, persik, alpukat, jambu, dan stroberi.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDF7E8",
+  "theme_color": "#FDF7E8",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}

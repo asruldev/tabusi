@@ -1,28 +1,40 @@
-# TABUSI
+# Paduka by Tabusi
 
-Situs pameran kopi [tabusi.asrul.dev](https://tabusi.asrul.dev). Pengunjung bisa melihat menu, menyapa lewat WhatsApp, dan membuat gambar Instagram Story dari kata-katanya.
+Situs jus buah [tabusi.asrul.dev](https://tabusi.asrul.dev). Pengunjung menyusun pesanan di nampan, membayar dengan QRIS, lalu mengirim bukti lewat WhatsApp. Story Instagram tetap bisa dibuat.
 
-Ini bukan toko online. Tidak ada keranjang atau checkout.
+Rasa yang dijual: mangga, sirsak, naga, pisang, melon, persik, alpukat, jambu, dan stroberi.
 
-## Yang perlu diganti sebelum tayang
+## Menjalankan
 
-Nomor WhatsApp ada di `js/config.js`. Ganti nilai `whatsapp` ke format internasional tanpa plus, contoh `62812xxxxxxx`.
+```bash
+npm install
+npm run dev
+```
+
+`npm run build` menghasilkan folder `dist`. HTML beranda sudah berisi teks menu, jadi isinya tetap terbaca tanpa menjalankan JavaScript.
+
+## Yang perlu dicek
+
+Nomor WhatsApp dan harga satu gelas ada di `src/config.js`. Nomor memakai format internasional tanpa plus, contoh `62812xxxxxxx`. Ubah `price` kalau harga gelas berubah.
+
+QRIS yang dipakai statis: pembeli memasukkan nominal sendiri, sesuai total nampan. Gambarnya ada di `public/qris.png`, disalin dari `assets/qris.PNG`.
+
+Logo web diambil dari `assets/logo.PNG`, lalu dipotong menjadi `public/logo.png`.
 
 ## GitHub Pages
 
-1. Push repositori ini ke GitHub.
-2. Di pengaturan repositori, nyalakan Pages dari branch `main`, folder `/ (root)`.
-3. Custom domain: `tabusi.asrul.dev`. File `CNAME` sudah disiapkan.
+Sumber terbitan adalah GitHub Actions, bukan folder root.
+
+1. Push ke branch `main`.
+2. Di pengaturan repositori, Pages → Build and deployment → Source: **GitHub Actions**.
+3. Workflow `.github/workflows/pages.yml` membangun situs dan menerbitkannya.
+4. Domain tetap `tabusi.asrul.dev`. File `CNAME` ikut terbawa di hasil build.
 
 ## DNS di `asrul.dev`
 
-Buat record CNAME:
+Record CNAME:
 
 - Nama: `tabusi`
 - Tujuan: `<username>.github.io`
 
-Setelah DNS merambat, centang HTTPS di pengaturan GitHub Pages.
-
-## Story generator
-
-Pengunjung mengetik kata-kata, memilih suasana, lalu mengunduh gambar 9:16 untuk Instagram Story.
+Setelah DNS merambat, nyalakan HTTPS di pengaturan GitHub Pages.
