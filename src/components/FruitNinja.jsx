@@ -2,6 +2,39 @@ import { useEffect, useRef, useState } from "react";
 import { juices } from "../data";
 
 const GRAVITY = 920;
+const TONES = [
+  [523, 0.09, "triangle"],
+  [659, 0.08, "sine"],
+  [784, 0.07, "triangle"],
+  [880, 0.06, "sine"],
+  [392, 0.11, "triangle"],
+  [988, 0.06, "square"],
+];
+
+function unlockAudio(audioRef) {
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return null;
+  if (!audioRef.current) audioRef.current = new AudioCtx();
+  if (audioRef.current.state === "suspended") audioRef.current.resume();
+  return audioRef.current;
+}
+
+function playTone(audioRef, freq, duration, type) {
+  const ctx = unlockAudio(audioRef);
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const now = ctx.currentTime;
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.07, now + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + duration + 0.02);
+}
 
 function isTyping(target) {
   if (!target || typeof target.closest !== "function") return false;
@@ -27,9 +60,11 @@ export default function FruitNinja({ playTick = 0 }) {
   const runRef = useRef(0);
   const running = phase !== "idle";
   const canvasRef = useRef(null);
+  const audioRef = useRef(null);
   const skipTick = useRef(true);
 
   function start() {
+    unlockAudio(audioRef);
     runRef.current += 1;
     phaseRef.current = "play";
     setHud((prev) => ({ score: 0, lives: 3, combo: 0, best: prev.best }));
@@ -153,10 +188,14 @@ export default function FruitNinja({ playTick = 0 }) {
         shake = 12;
         flash = 0.45;
         burst(fruit.x, fruit.y, "#542C05");
+        playTone(audioRef, 110, 0.16, "square");
         publish();
         if (lives <= 0) finish();
         return;
       }
+
+      const [freq, duration, type] = TONES[Math.floor(Math.random() * TONES.length)];
+      playTone(audioRef, freq * (0.94 + Math.random() * 0.14), duration, type);
 
       const now = performance.now();
       combo = now - lastSlice < 480 ? combo + 1 : 1;
@@ -196,12 +235,14 @@ export default function FruitNinja({ playTick = 0 }) {
       const r = bomb ? 30 : 34 + Math.random() * 8;
       const x = r + 24 + Math.random() * Math.max(40, w - r * 2 - 48);
       fruits.push({
-        kind: bomb ? "bomb" : "fruit",
+        kind: bomb ? "bomb" : Math.random() < 0.5 ? "jus" : "fruit",
         juice,
         x,
         y: h + r + 8,
         vx: ((w / 2 - x) * (0.25 + Math.random() * 0.45) + (Math.random() - 0.5) * 90) * speed,
-        vy: -(760 + Math.random() * 200) * speed,
+        vy: -Math.sqrt(2 * GRAVITY * Math.max(320, h + r + 8 - Math.max(36, h * 0.06))) *
+          (0.92 + Math.random() * 0.08) *
+          speed,
         r,
         rot: Math.random() * Math.PI,
         vr: (Math.random() - 0.5) * 3.4 * speed,
@@ -209,16 +250,57 @@ export default function FruitNinja({ playTick = 0 }) {
       });
     }
 
-    function drawDisc(item, alpha) {
+    function clipHalf(item) {
+      if (!item.side) return;
+      ctx.beginPath();
+      ctx.rect(item.side < 0 ? -item.r - 2 : 2, -item.r - 2, item.r, item.r * 2 + 4);
+      ctx.clip();
+    }
+
+    function drawGlass(item, alpha) {
+      const r = item.r;
       ctx.save();
       ctx.translate(item.x, item.y);
       ctx.rotate(item.rot);
       ctx.globalAlpha = alpha;
-      if (item.side) {
-        ctx.beginPath();
-        ctx.rect(item.side < 0 ? -item.r - 2 : 2, -item.r - 2, item.r, item.r * 2 + 4);
-        ctx.clip();
+      clipHalf(item);
+      ctx.shadowColor = "rgba(84, 44, 5, 0.28)";
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetY = 8;
+      ctx.beginPath();
+      ctx.moveTo(-r * 0.72, -r * 0.42);
+      ctx.lineTo(-r * 0.4, r * 0.58);
+      ctx.quadraticCurveTo(0, r * 0.8, r * 0.4, r * 0.58);
+      ctx.lineTo(r * 0.72, -r * 0.42);
+      ctx.closePath();
+      ctx.fillStyle = item.juice.color;
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(255, 253, 248, 0.92)";
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(0, -r * 0.42, r * 0.72, r * 0.16, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255, 253, 248, 0.62)";
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(-r * 0.28, 0.02 * r, r * 0.07, r * 0.28, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255, 253, 248, 0.4)";
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawDisc(item, alpha) {
+      if (item.kind === "jus") {
+        drawGlass(item, alpha);
+        return;
       }
+      ctx.save();
+      ctx.translate(item.x, item.y);
+      ctx.rotate(item.rot);
+      ctx.globalAlpha = alpha;
+      clipHalf(item);
       ctx.shadowColor = "rgba(84, 44, 5, 0.28)";
       ctx.shadowBlur = 16;
       ctx.shadowOffsetY = 8;
@@ -273,7 +355,7 @@ export default function FruitNinja({ playTick = 0 }) {
         if (fruit.y < h * 0.72) fruit.seen = true;
         if (fruit.y - fruit.r > h + 30 && fruit.vy > 0) {
           fruit.gone = true;
-          if (fruit.seen && grace <= 0 && fruit.kind === "fruit" && phaseRef.current === "play") {
+          if (fruit.seen && grace <= 0 && fruit.kind !== "bomb" && phaseRef.current === "play") {
             lives -= 1;
             combo = 0;
             publish();
@@ -368,6 +450,7 @@ export default function FruitNinja({ playTick = 0 }) {
     }
 
     function track(event) {
+      unlockAudio(audioRef);
       const next = pointFrom(event);
       if (pointer) slash(pointer, next);
       else slash(next, next);
@@ -423,7 +506,7 @@ export default function FruitNinja({ playTick = 0 }) {
   return (
     <>
       <p className="visually-hidden">
-        Tekan spasi untuk mulai. Arahkan kursor ke buah untuk mengiris, tanpa klik.
+        Tekan spasi untuk mulai. Arahkan kursor ke buah atau gelas jus untuk mengiris, tanpa klik.
       </p>
       {phase !== "idle" && (
         <div className="iris-layer">
@@ -438,7 +521,7 @@ export default function FruitNinja({ playTick = 0 }) {
               Kembali
             </button>
           </div>
-          <p className="iris-tip">Arahkan kursor ke buah, tanpa klik. Esc untuk kembali.</p>
+          <p className="iris-tip">Arahkan kursor ke buah atau jus, tanpa klik. Esc untuk kembali.</p>
           {phase === "over" && (
             <div className="iris-over" role="status">
               <p className="kicker">Iris selesai</p>
