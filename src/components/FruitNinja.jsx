@@ -178,7 +178,6 @@ export default function FruitNinja({ playTick = 0 }) {
 
     function slash(from, to) {
       if (phaseRef.current !== "play") return;
-      if (Math.hypot(to.x - from.x, to.y - from.y) < 8) return;
       fruits.forEach((fruit) => {
         if (phaseRef.current !== "play" || fruit.gone) return;
         if (hits(fruit.x, fruit.y, fruit.r, from.x, from.y, to.x, to.y)) cut(fruit);
@@ -267,6 +266,10 @@ export default function FruitNinja({ playTick = 0 }) {
         fruit.x += fruit.vx * dt;
         fruit.y += fruit.vy * dt;
         fruit.rot += fruit.vr * dt;
+        if (pointer && hits(fruit.x, fruit.y, fruit.r, pointer.x, pointer.y, pointer.x, pointer.y)) {
+          cut(fruit);
+        }
+        if (fruit.gone) return;
         if (fruit.y < h * 0.72) fruit.seen = true;
         if (fruit.y - fruit.r > h + 30 && fruit.vy > 0) {
           fruit.gone = true;
@@ -364,9 +367,16 @@ export default function FruitNinja({ playTick = 0 }) {
       requestAnimationFrame(frame);
     }
 
+    function track(event) {
+      const next = pointFrom(event);
+      if (pointer) slash(pointer, next);
+      else slash(next, next);
+      blade.push(next);
+      pointer = next;
+    }
+
     function down(event) {
-      pointer = pointFrom(event);
-      blade.push(pointer);
+      track(event);
       try {
         canvas.setPointerCapture(event.pointerId);
       } catch {
@@ -375,15 +385,16 @@ export default function FruitNinja({ playTick = 0 }) {
     }
 
     function move(event) {
-      if (!pointer) return;
+      if (event.pointerType === "touch" && !event.buttons) return;
       event.preventDefault();
-      const next = pointFrom(event);
-      slash(pointer, next);
-      blade.push(next);
-      pointer = next;
+      track(event);
     }
 
-    function up() {
+    function up(event) {
+      if (event.pointerType === "touch") pointer = null;
+    }
+
+    function leave() {
       pointer = null;
     }
 
@@ -393,7 +404,8 @@ export default function FruitNinja({ playTick = 0 }) {
     canvas.addEventListener("pointerdown", down);
     canvas.addEventListener("pointermove", move, { passive: false });
     canvas.addEventListener("pointerup", up);
-    canvas.addEventListener("pointercancel", up);
+    canvas.addEventListener("pointerleave", leave);
+    canvas.addEventListener("pointercancel", leave);
     const raf = requestAnimationFrame(frame);
 
     return () => {
@@ -403,14 +415,15 @@ export default function FruitNinja({ playTick = 0 }) {
       canvas.removeEventListener("pointerdown", down);
       canvas.removeEventListener("pointermove", move);
       canvas.removeEventListener("pointerup", up);
-      canvas.removeEventListener("pointercancel", up);
+      canvas.removeEventListener("pointerleave", leave);
+      canvas.removeEventListener("pointercancel", leave);
     };
   }, [running, session]);
 
   return (
     <>
       <p className="visually-hidden">
-        Tekan spasi untuk mengiris buah. Halaman tetap di belakang permainan.
+        Tekan spasi untuk mulai. Arahkan kursor ke buah untuk mengiris, tanpa klik.
       </p>
       {phase !== "idle" && (
         <div className="iris-layer">
@@ -425,7 +438,7 @@ export default function FruitNinja({ playTick = 0 }) {
               Kembali
             </button>
           </div>
-          <p className="iris-tip">Usap untuk mengiris. Esc untuk kembali.</p>
+          <p className="iris-tip">Arahkan kursor ke buah, tanpa klik. Esc untuk kembali.</p>
           {phase === "over" && (
             <div className="iris-over" role="status">
               <p className="kicker">Iris selesai</p>
