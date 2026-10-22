@@ -133,14 +133,21 @@ main,
 
 .nav {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 14px;
   font-weight: 600;
   font-size: 15px;
 }
 
-.nav a {
+.nav a,
+.nav button {
   text-decoration: none;
   color: var(--ink-soft);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
 }
 
 .nav a.is-current {
@@ -261,6 +268,7 @@ h2 {
 
 .btn:focus-visible,
 .nav a:focus-visible,
+.nav button:focus-visible,
 .brand:focus-visible,
 .nampan-go:focus-visible,
 .theme-card:focus-within,
@@ -1012,6 +1020,98 @@ h2 {
   .bayar-sheet {
     grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
   }
+}
+
+.iris-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.iris-layer canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.iris-hud,
+.iris-tip {
+  position: absolute;
+  z-index: 1;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.iris-hud {
+  top: 78px;
+}
+
+.iris-hud p,
+.iris-tip {
+  margin: 0;
+}
+
+.iris-tip {
+  bottom: 96px;
+  justify-content: center;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-shadow: 0 1px 0 rgba(253, 247, 232, 0.9);
+}
+
+.iris-pill {
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(253, 247, 232, 0.9);
+  color: var(--ink);
+  font-weight: 650;
+  box-shadow: 0 8px 24px rgba(84, 44, 5, 0.12);
+}
+
+.iris-exit {
+  pointer-events: auto;
+  cursor: pointer;
+  border: 0;
+  font: inherit;
+}
+
+.iris-over {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  width: min(320px, calc(100% - 32px));
+  padding: 28px 24px;
+  text-align: center;
+  background: rgba(255, 253, 248, 0.94);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+}
+
+.iris-over p {
+  margin: 0 0 8px;
+}
+
+.iris-score {
+  font-family: var(--display);
+  font-size: 64px;
+  line-height: 1;
+  font-weight: 650;
+}
+
+.iris-over .btn {
+  margin-top: 12px;
 }
 
 @media (prefers-reduced-motion: reduce) {

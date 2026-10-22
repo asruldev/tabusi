@@ -6,7 +6,7 @@ const links = [
   { href: "#story", id: "story", label: "Story" },
 ];
 
-export default function Header() {
+export default function Header({ onPlay }) {
   const [current, setCurrent] = useState("");
 
   useEffect(() => {
@@ -44,6 +44,9 @@ export default function Header() {
             {link.label}
           </a>
         ))}
+        <button type="button" onClick={onPlay} title="Tekan spasi untuk mulai">
+          Iris
+        </button>
       </nav>
     </header>
   );

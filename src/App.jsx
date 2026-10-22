@@ -7,6 +7,7 @@ import Bayar from "./components/Bayar";
 import Nampan from "./components/Nampan";
 import StoryStudio from "./components/StoryStudio";
 import Footer from "./components/Footer";
+import FruitNinja from "./components/FruitNinja";
 
 const STORAGE_KEY = "paduka-nampan";
 
@@ -34,6 +35,7 @@ export default function App() {
   const [lines, setLines] = useState([]);
   const [stored, setStored] = useState(false);
   const [notice, setNotice] = useState("");
+  const [playTick, setPlayTick] = useState(0);
 
   useEffect(() => {
     setLines(readNampan());
@@ -83,7 +85,7 @@ export default function App() {
       <p className="visually-hidden" aria-live="polite">
         {notice}
       </p>
-      <Header />
+      <Header onPlay={() => setPlayTick((value) => value + 1)} />
       <main id="konten">
         <Hero />
         <Meja
@@ -108,6 +110,7 @@ export default function App() {
       </main>
       <Footer />
       <Nampan lines={lines} />
+      <FruitNinja playTick={playTick} />
     </>
   );
 }
