@@ -2,6 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { juices } from "../data";
 
 const GRAVITY = 920;
+const JUTSU = [
+  { id: "kage", keys: ["KeyQ", "KeyW", "KeyE"], name: "Kagebunshin" },
+  { id: "raiton", keys: ["KeyJ", "KeyJ"], name: "Raiton" },
+  { id: "futon", keys: ["KeyA", "KeyD"], name: "Futon" },
+  { id: "kawarimi", keys: ["KeyS", "KeyS"], name: "Kawarimi" },
+];
+
 const TONES = [
   [523, 0.09, "triangle"],
   [659, 0.08, "sine"],
@@ -115,7 +122,15 @@ export default function FruitNinja({ playTick = 0 }) {
     const bits = [];
     const notes = [];
     const blade = [];
+    const winds = [];
+    const bolts = [];
+    const chord = [];
     let pointer = null;
+    let swordAngle = -Math.PI * 0.78;
+    let jutsuAt = 0;
+    let raiton = 0;
+    let pointScale = 1;
+    let shout = null;
     let score = 0;
     let lives = 3;
     let combo = 0;
@@ -180,7 +195,7 @@ export default function FruitNinja({ playTick = 0 }) {
       publish();
     }
 
-    function cut(fruit) {
+    function cut(fruit, quiet) {
       fruit.gone = true;
       if (fruit.kind === "bomb") {
         lives -= 1;
@@ -188,19 +203,23 @@ export default function FruitNinja({ playTick = 0 }) {
         shake = 12;
         flash = 0.45;
         burst(fruit.x, fruit.y, "#542C05");
-        playTone(audioRef, 110, 0.16, "square");
+        if (!quiet) playTone(audioRef, 110, 0.16, "square");
         publish();
         if (lives <= 0) finish();
         return;
       }
 
-      const [freq, duration, type] = TONES[Math.floor(Math.random() * TONES.length)];
-      playTone(audioRef, freq * (0.94 + Math.random() * 0.14), duration, type);
+      if (!quiet) {
+        const [freq, duration, type] = TONES[Math.floor(Math.random() * TONES.length)];
+        playTone(audioRef, freq * (0.94 + Math.random() * 0.14), duration, type);
+      }
 
       const now = performance.now();
       combo = now - lastSlice < 480 ? combo + 1 : 1;
       lastSlice = now;
-      score += combo;
+      score += combo * pointScale;
+      const gained = fruit.kind === "jus" && lives < 5;
+      if (gained) lives += 1;
       halves.push(
         { ...fruit, side: -1, vx: fruit.vx - 160, vy: fruit.vy - 30, vr: -5, life: 0.7 },
         { ...fruit, side: 1, vx: fruit.vx + 160, vy: fruit.vy - 30, vr: 5, life: 0.7 }
@@ -209,7 +228,7 @@ export default function FruitNinja({ playTick = 0 }) {
       notes.push({
         x: fruit.x,
         y: fruit.y - fruit.r,
-        text: combo > 1 ? `×${combo}` : "+1",
+        text: gained ? "+nyawa" : combo > 1 ? `×${combo}` : "+1",
         life: 0.7,
       });
       publish();
@@ -329,10 +348,14 @@ export default function FruitNinja({ playTick = 0 }) {
       last = now;
       const { w, h } = view();
 
+      raiton = Math.max(0, raiton - dt);
+      pointScale = raiton > 0 ? 2 : 1;
+      const timeScale = raiton > 0 ? 0.42 : 1;
+
       if (phaseRef.current === "play") {
         elapsed += dt;
         grace = Math.max(0, grace - dt);
-        spawnIn -= dt;
+        spawnIn -= dt * timeScale;
         if (spawnIn <= 0) {
           const speed = pace();
           const wave = 1 + Math.min(3, Math.floor(elapsed / 6));
@@ -344,10 +367,10 @@ export default function FruitNinja({ playTick = 0 }) {
       const gravity = GRAVITY * pace() * pace();
       fruits.forEach((fruit) => {
         if (fruit.gone) return;
-        fruit.vy += gravity * dt;
-        fruit.x += fruit.vx * dt;
-        fruit.y += fruit.vy * dt;
-        fruit.rot += fruit.vr * dt;
+        fruit.vy += gravity * dt * timeScale;
+        fruit.x += fruit.vx * dt * timeScale;
+        fruit.y += fruit.vy * dt * timeScale;
+        fruit.rot += fruit.vr * dt * timeScale;
         if (pointer && hits(fruit.x, fruit.y, fruit.r, pointer.x, pointer.y, pointer.x, pointer.y)) {
           cut(fruit);
         }
@@ -397,6 +420,24 @@ export default function FruitNinja({ playTick = 0 }) {
         if (notes[i].life <= 0) notes.splice(i, 1);
       }
 
+      winds.forEach((wind) => {
+        wind.life -= dt;
+        wind.x += wind.speed * dt;
+      });
+      for (let i = winds.length - 1; i >= 0; i -= 1) {
+        if (winds[i].life <= 0) winds.splice(i, 1);
+      }
+      bolts.forEach((bolt) => {
+        bolt.life -= dt;
+      });
+      for (let i = bolts.length - 1; i >= 0; i -= 1) {
+        if (bolts[i].life <= 0) bolts.splice(i, 1);
+      }
+      if (shout) {
+        shout.life -= dt;
+        if (shout.life <= 0) shout = null;
+      }
+
       while (blade.length && now - blade[0].t > 140) blade.shift();
       shake = Math.max(0, shake - dt * 28);
       flash = Math.max(0, flash - dt);
@@ -410,6 +451,34 @@ export default function FruitNinja({ playTick = 0 }) {
         ctx.fillStyle = `rgba(196, 59, 104, ${flash * 0.18})`;
         ctx.fillRect(0, 0, w, h);
       }
+      if (raiton > 0) {
+        ctx.fillStyle = "rgba(110, 168, 255, 0.1)";
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      winds.forEach((wind) => {
+        ctx.globalAlpha = Math.max(0, wind.life * 2);
+        ctx.strokeStyle = "rgba(255, 253, 248, 0.95)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(wind.x, wind.y);
+        ctx.lineTo(wind.x + wind.len, wind.y);
+        ctx.stroke();
+      });
+      bolts.forEach((bolt) => {
+        ctx.beginPath();
+        ctx.moveTo(bolt.pts[0].x, bolt.pts[0].y);
+        bolt.pts.forEach((point) => ctx.lineTo(point.x, point.y));
+        ctx.globalAlpha = Math.max(0, bolt.life * 2.4);
+        ctx.strokeStyle = "#F7FBFF";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        ctx.globalAlpha = Math.max(0, bolt.life);
+        ctx.strokeStyle = "#6EA8FF";
+        ctx.lineWidth = 6;
+        ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
 
       halves.forEach((half) => drawDisc(half, Math.max(0, half.life / 0.7)));
       fruits.forEach((fruit) => drawDisc(fruit, 1));
@@ -437,6 +506,16 @@ export default function FruitNinja({ playTick = 0 }) {
         ctx.stroke();
       }
 
+      if (pointer) drawSword(pointer.x, pointer.y, swordAngle);
+      if (shout) {
+        ctx.globalAlpha = Math.min(1, shout.life);
+        ctx.font = "700 52px Fraunces, Georgia, serif";
+        ctx.textAlign = "center";
+        ctx.fillStyle = shout.color;
+        ctx.fillText(shout.name, w / 2, h * 0.4);
+        ctx.globalAlpha = 1;
+      }
+
       ctx.font = "700 28px Fraunces, Georgia, serif";
       ctx.textAlign = "center";
       notes.forEach((note) => {
@@ -449,11 +528,161 @@ export default function FruitNinja({ playTick = 0 }) {
       requestAnimationFrame(frame);
     }
 
+    function drawSword(x, y, angle) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.shadowColor = "rgba(84, 44, 5, 0.35)";
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 4;
+      ctx.beginPath();
+      ctx.moveTo(1, 0);
+      ctx.lineTo(-7, 5.5);
+      ctx.lineTo(-96, 2.2);
+      ctx.lineTo(-100, 0);
+      ctx.lineTo(-96, -2.2);
+      ctx.lineTo(-7, -5.5);
+      ctx.closePath();
+      const steel = ctx.createLinearGradient(0, -6, 0, 6);
+      steel.addColorStop(0, "#FFFFFF");
+      steel.addColorStop(0.5, "#D7DEE8");
+      steel.addColorStop(1, "#8D9AAB");
+      ctx.fillStyle = steel;
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+      ctx.lineWidth = 1.25;
+      ctx.strokeStyle = "#3A2418";
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-12, 1.1);
+      ctx.quadraticCurveTo(-52, 3.2, -92, 0.8);
+      ctx.strokeStyle = "rgba(255, 253, 248, 0.8)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(-104, 0, 5, 12, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "#542C05";
+      ctx.fill();
+      ctx.strokeStyle = "#C6A15B";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-108, -3.2);
+      ctx.lineTo(-138, -2.2);
+      ctx.lineTo(-138, 2.2);
+      ctx.lineTo(-108, 3.2);
+      ctx.closePath();
+      ctx.fillStyle = "#24160F";
+      ctx.fill();
+      ctx.strokeStyle = "#C6A15B";
+      ctx.lineWidth = 1.3;
+      for (let i = 0; i < 5; i += 1) {
+        const wrap = -112 - i * 5;
+        ctx.beginPath();
+        ctx.moveTo(wrap, -3);
+        ctx.lineTo(wrap - 3, 3);
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.arc(-141, 0, 3.3, 0, Math.PI * 2);
+      ctx.fillStyle = "#C6A15B";
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function zig(x0, y0, x1, y1) {
+      const pts = [{ x: x0, y: y0 }];
+      const steps = 6;
+      for (let i = 1; i < steps; i += 1) {
+        pts.push({
+          x: x0 + ((x1 - x0) * i) / steps + (Math.random() - 0.5) * 46,
+          y: y0 + ((y1 - y0) * i) / steps + (Math.random() - 0.5) * 34,
+        });
+      }
+      pts.push({ x: x1, y: y1 });
+      bolts.push({ pts, life: 0.38 });
+    }
+
+    function cast(id, w, h) {
+      const names = { kage: "Kagebunshin", futon: "Futon", raiton: "Raiton", kawarimi: "Kawarimi" };
+      const colors = { kage: "#542C05", futon: "#3E6B4F", raiton: "#1E4E8C", kawarimi: "#8A5A2B" };
+      shout = { name: names[id], life: 1.05, color: colors[id] };
+      if (id === "kage") {
+        playTone(audioRef, 523, 0.12, "triangle");
+        playTone(audioRef, 784, 0.16, "triangle");
+        fruits.filter((fruit) => !fruit.gone && fruit.kind !== "bomb").forEach((fruit) => cut(fruit, true));
+        return;
+      }
+      if (id === "futon") {
+        playTone(audioRef, 174, 0.24, "sine");
+        fruits.forEach((fruit) => {
+          if (fruit.gone) return;
+          fruit.vy = -(980 + Math.random() * 240);
+          fruit.vx += (Math.random() - 0.5) * 160;
+        });
+        for (let i = 0; i < 16; i += 1) {
+          winds.push({
+            x: -120 - Math.random() * 80,
+            y: Math.random() * h,
+            len: 70 + Math.random() * 150,
+            speed: 820 + Math.random() * 420,
+            life: 0.35 + Math.random() * 0.25,
+          });
+        }
+        return;
+      }
+      if (id === "kawarimi") {
+        playTone(audioRef, 349, 0.16, "sine");
+        playTone(audioRef, 523, 0.2, "triangle");
+        if (lives < 5) {
+          lives += 1;
+          publish();
+        }
+        return;
+      }
+      playTone(audioRef, 988, 0.07, "square");
+      playTone(audioRef, 1480, 0.09, "square");
+      raiton = 3;
+      flash = 0.2;
+      const targets = fruits.filter((fruit) => !fruit.gone && fruit.kind !== "bomb");
+      targets.forEach((fruit) => zig(w * 0.5, 0, fruit.x, fruit.y));
+    }
+
+    function onJutsuKey(event) {
+      if (phaseRef.current !== "play" || event.repeat || isTyping(event.target)) return;
+      if (!JUTSU.some((jutsu) => jutsu.keys.includes(event.code))) return;
+      event.preventDefault();
+      const now = performance.now();
+      if (now - jutsuAt < 1500) return;
+      chord.push({ code: event.code, t: now });
+      while (chord.length && now - chord[0].t > 1200) chord.shift();
+      const found = JUTSU.find((jutsu) => {
+        if (chord.length < jutsu.keys.length) return false;
+        const tail = chord.slice(-jutsu.keys.length);
+        return tail.every((item, index) => item.code === jutsu.keys[index]);
+      });
+      if (!found) return;
+      chord.length = 0;
+      jutsuAt = now;
+      const { w, h } = view();
+      cast(found.id, w, h);
+    }
+
     function track(event) {
       unlockAudio(audioRef);
       const next = pointFrom(event);
-      if (pointer) slash(pointer, next);
-      else slash(next, next);
+      if (pointer) {
+        const dx = next.x - pointer.x;
+        const dy = next.y - pointer.y;
+        if (dx * dx + dy * dy > 9) {
+          const aim = Math.atan2(dy, dx);
+          let turn = aim - swordAngle;
+          while (turn > Math.PI) turn -= Math.PI * 2;
+          while (turn < -Math.PI) turn += Math.PI * 2;
+          swordAngle += turn * 0.55;
+        }
+        slash(pointer, next);
+      } else slash(next, next);
       blade.push(next);
       pointer = next;
     }
@@ -484,6 +713,7 @@ export default function FruitNinja({ playTick = 0 }) {
     size();
     const resize = () => size();
     window.addEventListener("resize", resize);
+    window.addEventListener("keydown", onJutsuKey);
     canvas.addEventListener("pointerdown", down);
     canvas.addEventListener("pointermove", move, { passive: false });
     canvas.addEventListener("pointerup", up);
@@ -495,6 +725,7 @@ export default function FruitNinja({ playTick = 0 }) {
       alive = false;
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      window.removeEventListener("keydown", onJutsuKey);
       canvas.removeEventListener("pointerdown", down);
       canvas.removeEventListener("pointermove", move);
       canvas.removeEventListener("pointerup", up);
@@ -506,7 +737,7 @@ export default function FruitNinja({ playTick = 0 }) {
   return (
     <>
       <p className="visually-hidden">
-        Tekan spasi untuk mulai. Arahkan kursor ke buah atau gelas jus untuk mengiris, tanpa klik.
+        Tekan spasi untuk mulai. Jurus: QWE Kagebunshin, AD Futon, JJ Raiton, SS Kawarimi. Memotong gelas jus menambah nyawa.
       </p>
       {phase !== "idle" && (
         <div className="iris-layer">
@@ -521,7 +752,10 @@ export default function FruitNinja({ playTick = 0 }) {
               Kembali
             </button>
           </div>
-          <p className="iris-tip">Arahkan kursor ke buah atau jus, tanpa klik. Esc untuk kembali.</p>
+          <p className="iris-tip">
+            <span>QWE Kagebunshin · AD Futon · JJ Raiton · SS Kawarimi</span>
+            <span>Arahkan kursor, tanpa klik. Potong jus, nyawa bertambah. Esc untuk kembali.</span>
+          </p>
           {phase === "over" && (
             <div className="iris-over" role="status">
               <p className="kicker">Iris selesai</p>

@@ -1027,7 +1027,7 @@ h2 {
   inset: 0;
   z-index: 40;
   touch-action: none;
-  cursor: crosshair;
+  cursor: none;
 }
 
 .iris-layer canvas {
@@ -1060,7 +1060,10 @@ h2 {
 }
 
 .iris-tip {
-  bottom: 96px;
+  bottom: 88px;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
   justify-content: center;
   color: var(--ink);
   font-size: 14px;
